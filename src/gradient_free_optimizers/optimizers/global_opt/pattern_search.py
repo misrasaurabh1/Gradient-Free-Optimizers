@@ -10,9 +10,18 @@ from ..local_opt.hill_climbing_optimizer import HillClimbingOptimizer
 
 
 def max_list_idx(list_):
-    max_item = max(list_)
-    max_item_idx = [i for i, j in enumerate(list_) if j == max_item]
-    return max_item_idx[-1:][0]
+    if not list_:
+        raise ValueError("The list is empty")
+
+    max_item = list_[0]
+    max_item_idx = 0
+
+    for i in range(1, len(list_)):
+        if list_[i] >= max_item:  # considering the last occurrence
+            max_item = list_[i]
+            max_item_idx = i
+
+    return max_item_idx
 
 
 class PatternSearch(BaseOptimizer):
@@ -80,9 +89,7 @@ class PatternSearch(BaseOptimizer):
             pattern_pos_l.append(pos_pattern_p)
             pattern_pos_l.append(pos_pattern_n)
 
-        self.pattern_pos_l = list(
-            random.sample(pattern_pos_l, self.n_positions_)
-        )
+        self.pattern_pos_l = list(random.sample(pattern_pos_l, self.n_positions_))
 
     @BaseOptimizer.track_new_pos
     @BaseOptimizer.random_iteration
