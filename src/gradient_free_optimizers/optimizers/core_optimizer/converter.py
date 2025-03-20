@@ -10,15 +10,17 @@ from typing import Optional
 
 
 def check_numpy_array(search_space):
+    """
+    This function checks if all values in the search_space dictionary
+    are numpy arrays. If not, it raises a ValueError with the appropriate
+    error message indicating the wrong type.
+    """
+
     for para_name, dim_values in search_space.items():
-
-        def error_message(wrong_type):
-            return "\n Value in '{}' of search space dictionary must be of type array but is '{}' \n".format(
-                para_name, wrong_type
-            )
-
         if not isinstance(dim_values, np.ndarray):
-            raise ValueError(error_message(type(dim_values)))
+            raise ValueError(
+                f"\n Value in '{para_name}' of search space dictionary must be of type array but is '{type(dim_values)}' \n"
+            )
 
 
 class Converter:
