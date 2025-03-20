@@ -14,6 +14,7 @@ from .init_positions import Initializer
 from .utils import set_random_seed, move_random
 
 from numpy.random import normal, laplace, logistic, gumbel
+from scipy.spatial import distance
 
 dist_dict = {
     "normal": normal,
@@ -60,9 +61,7 @@ class CoreOptimizer(SearchTracker):
 
         return wrapper
 
-    def move_climb(
-        self, pos, epsilon=0.03, distribution="normal", epsilon_mod=1
-    ):
+    def move_climb(self, pos, epsilon=0.03, distribution="normal", epsilon_mod=1):
         while True:
             sigma = self.conv.max_positions * epsilon * epsilon_mod
             pos_normal = dist_dict[distribution](pos, sigma, pos.shape)
@@ -76,13 +75,11 @@ class CoreOptimizer(SearchTracker):
         # position to int
         r_pos = np.rint(pos)
 
-        n_zeros = [0] * len(self.conv.max_positions)
+        n_zeros = np.zeros(len(self.conv.max_positions), dtype=int)
         # clip into search space boundaries
         pos = np.clip(r_pos, n_zeros, self.conv.max_positions).astype(int)
 
-        dist = scipy.spatial.distance.cdist(
-            r_pos.reshape(1, -1), pos.reshape(1, -1)
-        )
+        dist = distance.cdist(r_pos.reshape(1, -1), pos.reshape(1, -1))
         threshold = self.conv.search_space_size / (100**self.conv.n_dimensions)
 
         if dist > threshold:
