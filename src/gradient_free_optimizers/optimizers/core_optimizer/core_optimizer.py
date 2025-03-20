@@ -3,7 +3,6 @@
 # License: MIT License
 
 
-import scipy
 import random
 import numpy as np
 
@@ -60,12 +59,10 @@ class CoreOptimizer(SearchTracker):
 
         return wrapper
 
-    def move_climb(
-        self, pos, epsilon=0.03, distribution="normal", epsilon_mod=1
-    ):
+    def move_climb(self, pos, epsilon=0.03, distribution="normal", epsilon_mod=1):
         while True:
             sigma = self.conv.max_positions * epsilon * epsilon_mod
-            pos_normal = dist_dict[distribution](pos, sigma, pos.shape)
+            pos_normal = dist_dict[distribution](pos, sigma)
             pos = self.conv2pos(pos_normal)
 
             if self.conv.not_in_constraint(pos):
@@ -76,16 +73,14 @@ class CoreOptimizer(SearchTracker):
         # position to int
         r_pos = np.rint(pos)
 
-        n_zeros = [0] * len(self.conv.max_positions)
+        n_zeros = np.zeros(len(self.conv.max_positions))
         # clip into search space boundaries
         pos = np.clip(r_pos, n_zeros, self.conv.max_positions).astype(int)
 
-        dist = scipy.spatial.distance.cdist(
-            r_pos.reshape(1, -1), pos.reshape(1, -1)
-        )
+        dist_squared = np.sum((r_pos - pos) ** 2)
         threshold = self.conv.search_space_size / (100**self.conv.n_dimensions)
 
-        if dist > threshold:
+        if dist_squared > threshold:
             return self.move_random()
 
         return pos
