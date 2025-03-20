@@ -9,21 +9,18 @@ class ResultsManager:
     def __init__(self):
         super().__init__()
         self.conv = None
-
         self.results_list = []
 
     def _obj_func_results(self, objective_function, para):
         results = objective_function(para)
 
         if isinstance(results, tuple):
-            score = results[0]
-            results_dict = results[1]
+            score, results_dict = results
         else:
             score = results
             results_dict = {}
 
         results_dict["score"] = score
-
         return results_dict
 
     def score(self, objective_function):
